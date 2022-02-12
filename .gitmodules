@@ -1,3 +1,0 @@
-[submodule "ulib/FStar"]
-	path = ulib/FStar
-	url = https://github.com/FStarLang/FStar
