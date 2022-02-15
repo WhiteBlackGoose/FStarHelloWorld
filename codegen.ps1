@@ -7,7 +7,7 @@ $filename = "$moduleName.fst"
 
 if ($args[1] -eq "verify")
 {
-  fstar $filename --query_stats
+  fstar $filename
   exit
 }
 else

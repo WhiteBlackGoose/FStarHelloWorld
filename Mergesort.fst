@@ -41,10 +41,31 @@ let rec divBy2IsLess (n : nat)
 let nMinusItsHalfIsLess (n : nat) : Lemma (n - halve n <= n) = ()
 
 (*
-let split #a (l : list a) : (le : list a { length le = halve (length l) }) & (ri : list a { length ri = length l - halve (length l) }) =
+let split #a (l : list a)
+    : x : (list a & list a) { length (fst x) + length (snd x) = length l } =
     let len = length l in
         (take l (halve len), drop l (len - halve len))
 *)
+
+(*
+let rec split #a (s left right : list a)
+    : x : (list a & list b) {  } =
+    match s with
+    | [] -> left, right
+    | h1 :: [] -> h1 :: left, right
+    | h1 :: h2 :: [] -> h1 :: left, h2 :: right
+    | h1 :: h2 :: tl -> split tl (h1 :: left) (h2 :: right)
+*)
+
+let rec split #a (s : list a) : x : (list a & list a) { length (fst x) + length (snd x) = length s } =
+    match s with
+    | [] -> [], []
+    | h1 :: [] -> [ h1 ], []
+    | h1 :: h2 :: [] -> [ h1 ], [ h2 ]
+    | h1 :: h2 :: tl ->
+        let (l, r) = split tl in
+        h1 :: l, h2 :: r
+
 
 let nMinusHalfPlusHalf (n : nat) : Lemma (halve n + (n - halve n) = n) = ()
 
@@ -58,11 +79,24 @@ let rec mergeSort (l : list int) : Tot (r : list int { length r = length l }) (d
         if a < b then [ a; b ]
         else [ b; a ]
     | other ->
-        let len = length other in
-        let left = take other (halve len) in
-        let right = drop other (len - halve len) in 
+        // let len = length other in
+        // let left = take other (halve len) in
+        // let right = drop other (len - halve len) in 
+        // merge (mergeSort left) (mergeSort right)
+        let (left, right) = split other in
         merge (mergeSort left) (mergeSort right)
-        // let (left, right) = split other in   
-        //     merge (mergeSort left) (mergeSort right)
 
 // #reset-options
+
+
+let rec sorted (l : list int) =
+    match l with
+    | [] | [ _ ] -> true
+    | a :: b :: tl -> a < b && sorted (b :: tl)
+
+
+let sorts1 = assert(sorted (mergeSort [ 1; 2; 3 ]))
+let sorts2 = assert(sorted (mergeSort [ 4; 5; 1 ]))
+let sorts3 = assert(sorted (mergeSort [ 5; -1 ]))
+let sorts4 = assert(sorted (mergeSort [ 0; 9; 1; 4; 5 ]))
+
