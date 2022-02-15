@@ -16,10 +16,8 @@ let rec sorted (l : list int) =
     | [] | [ _ ] -> true
     | a :: b :: tl -> a <= b && sorted (b :: tl)
 
-let tailSorted (l : list int { sorted l })
-    : Lemma ((length l > 0) ==> (match l with | _ :: tl -> sorted tl)) = ()
-
-let rec merge (a : list int { sorted a }) (b : list int { sorted b }) : c : list int { length c = length a + length b && sorted c } =
+let rec merge (a : list int) (b : list int)
+    : c : list int { length c = length a + length b /\ (sorted a /\ sorted b ==> sorted c) } =
     match a, b with
     | [], o | o, [] -> o
     | h1 :: t1, h2 :: t2 ->
@@ -81,7 +79,7 @@ let nMinusHalfPlusHalf (n : nat) : Lemma (halve n + (n - halve n) = n) = ()
 
 // #set-options "--initial_fuel 10 --initial_ifuel 10"
 
-let rec mergeSort (l : list int) : Tot (r : list int { length r = length l && sorted r }) (decreases (length l)) =
+let rec mergeSort (l : list int) : Tot (r : list int { length r = length l }) (decreases (length l)) =
     match l with
     | [] -> []
     | [ a ] -> [ a ]
@@ -95,6 +93,27 @@ let rec mergeSort (l : list int) : Tot (r : list int { length r = length l && so
         // merge (mergeSort left) (mergeSort right)
         let (left, right) = split other in
         merge (mergeSort left) (mergeSort right)
+
+
+let rec mergedCorrectly (l : list int) (r : list int)
+    : Lemma (sorted l /\ sorted r ==> sorted (merge l r)) =
+    match l, r with
+    | [], _ | _, [] -> ()
+    | h1 :: t1, h2 :: t2 ->
+        mergedCorrectly t1 (h2 :: t2);
+        mergedCorrectly (h1 :: t1) t2
+
+(*
+let rec sortedCorrectly (l : list int)
+    : Lemma (ensures (sorted (mergeSort l))) (decreases (length l)) =
+    match l with
+    | [] | [ _ ] | [ _; _ ] -> ()
+    | other ->
+        let (left, right) = split other in
+        // assert (sorted (mergeSort left));
+        // assert (sorted (mergeSort right));
+        sortedCorrectly (merge (mergeSort left) (mergeSort right))
+*)
 
 // #reset-options
 
