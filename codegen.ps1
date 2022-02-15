@@ -10,7 +10,6 @@ fstar $filename --dep full --codegen FSharp --odir ./codegen
 Write-Host "Code generated to ./codegen"
 
 $fsproj = "./codegen/$moduleName.fsproj"
-$fsentry = "./codegen/Program.fs"
 $pydir = "./codegen/"
 $py = "./codegen/$moduleName.fsproj"
 
@@ -25,20 +24,12 @@ $xml = @"
   <ItemGroup>
     <PackageReference Include="FStarLib" Version="0.0.2-alpha" />
     <Compile Include="$moduleName.fs" />
-    <!-- <Compile Include="Program.fs" /> -->
   </ItemGroup>
 
 </Project>
 "@
 
-$entry = @"
-open $moduleName
-
-main (fun () -> System.Console.ReadLine()) (fun s -> printfn $"{s}")
-"@
-
 $xml | Out-File -FilePath $fsproj
-$entry | Out-FIle -FilePath $fsentry
 
 if ($args[1] -eq "fscodegen")
 {
