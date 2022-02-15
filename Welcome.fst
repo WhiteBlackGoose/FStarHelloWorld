@@ -2,6 +2,8 @@ module Welcome
 
 open FStar.Mul
 open FStar.Math.Lib
+open FStar.String
+open FStar.IO
 
 let id a = a
 
@@ -68,29 +70,30 @@ type set (a : Type { hasEq a }) : nat -> Type =
     | Empty : set a 0
     | Next : #n:nat -> (hd : a) -> (tl : set a n) -> set a (n + 1)
 
-let rec contains (n : nat) (a : Type { hasEq a }) (v : a) (s : set a n) =
+let rec contains (#n : nat) (#a : Type { hasEq a }) (v : a) (s : set a n) =
     match s with
     | Empty -> false
-    | Next hd tl -> hd = v || (contains (n - 1) a v tl)
+    | Next hd tl -> hd = v || (contains v tl)
 
-let containsWorks1 = assert(~(contains 0 int 3 Empty))
-let containsWorks2_a = assert(~(contains 1 int 3 (Next 3 Empty)))
-let containsWorks2_b = assert(contains 1 int 3 (Next 3 (Empty)))
-let containsWorks2_c = assert(contains 1 int 2524 (Next 2524 Empty))
-let containsWorks3 = assert(contains 2 int 5 (Next 3 (Next 5 Empty)))
-let containsWorks4 = assert(contains 2 int 3 (Next 3 (Next 5 Empty)))
-let containsWorks5 = assert(~(contains 2 int 4 (Next 3 (Next 5 Empty))))
-// let containsWorks3 = assert(contains 1 int 3 (Next 3 Empty))
-// let containsWorks4 = assert(contains 3 int 1 (Next 3 Empty))
+let containsWorks1 = assert(~(contains 3 Empty))
+let v = (Next 3 Empty)
+let containsWorks2 = assert(contains 3 v)
+let containsWorks3 = assert(contains 5 (Next 3 (Next 5 Empty)))
+let containsWorks4 = assert(contains 3 (Next 3 (Next 5 Empty)))
+let containsWorks5 = assert(~(contains 4 (Next 3 (Next 5 Empty))))
 
 
 
-// let oneOf (n : nat) (a : Type { hasEq a }) (s : set a n) = x : a { contains n a x s }
+let oneOf (n : nat) (a : eqtype) (s : set a n) = x : a { contains x s }
 
-// let oneOf (n : nat) (a : Type { hasEq a }) (s : set a n) = x : a { true }
 
+let j = (Next 3 Empty)
+let k = (Next 3 (Next 5 (Next 7 Empty)))
+
+
+let aaa : oneOf 1 int j = 3
 // let aaa : oneOf 1 int (Next 3 Empty) = 3
-// let bbb : oneOf 3 int (Next 3 (Next 5 (Next 7 Empty))) = 5
+let bbb : oneOf 3 int k = 5
 // let ccc : oneOf 3 int (Next 3 (Next 5 (Next 7 Empty))) = 7
 // let ddd : oneOf 3 int (Next 3 (Next 5 (Next 7 Empty))) = 8
 // let eee : oneOf 2 int (Next 3 (Next 5 Empty)) = 5
@@ -101,10 +104,12 @@ let containsWorks5 = assert(~(contains 2 int 4 (Next 3 (Next 5 Empty))))
 
 // let hhh : off int = 4
 
-let rec aaa (n : nat) : Tot nat (decreases n) = 
-    if n = 0 then 0
-    else if n % 2 = 1 then aaa (n + 1)
-    else aaa (n - 2)
+//let rec ohnmmo_terminates (n : nat) : 
+
+// let rec ohnmmo (n : nat) : Tot nat (decreases n) = 
+//     if n = 0 then 0
+//     else if n % 2 = 1 then ohnmmo (n + 1)
+//     else ohnmmo (n - 2)
 
 
 
@@ -120,4 +125,19 @@ let prime = x : int { x > 1 /\ (forall (y : int { y > 1 && y < x }) . x % y <> 0
 let p1 : prime = 2
 let p2 : prime = 5
 let p3 : prime = 11
-let p4 : prime = 8
+// let p4 : prime = 8
+
+// let afgd : unit -> int = (fun _ -> 3)
+
+// let b = afgd()
+
+let _ = print_string stdout "hello"
+
+(*
+let main (input : unit -> string) (output : string -> unit) : int =
+    let name = input() in
+        let toOut = concat "" [ "Hello, "; name; "!" ] in
+            output toOut;
+            3
+
+*)

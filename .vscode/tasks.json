@@ -2,10 +2,10 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "codegen",
+            "label": "fscodegen",
             "command": "powershell",
             "args": [
-                "./codegen.ps1"
+                "./codegen.ps1 ${fileBasenameNoExtension} fscodegen"
             ],
             "group": {
                 "kind": "build",
@@ -13,12 +13,15 @@
             }
         },
         {
-            "label": "build",
-            "command": "dotnet",
+            "label": "fsrun",
+            "command": "powershell",
             "args": [
-                "build",
-                "./codegen/Welcome.fsproj"
-            ]
-        }
+                "./codegen.ps1 ${fileBasenameNoExtension} fsrun"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
     ]
 }
