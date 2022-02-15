@@ -4,19 +4,29 @@ open FStar.Mul
 open FStar.Math.Lib
 open FStar.IO
 
+#set-options "--initial_fuel 10 --initial_ifuel 10"
+
 let rec length l : nat =
     match l with
     | [] -> 0
     | _ :: t -> 1 + length t
 
-let rec merge (a : list int) (b : list int) : c : list int { length c = length a + length b } =
+let rec sorted (l : list int) =
+    match l with
+    | [] | [ _ ] -> true
+    | a :: b :: tl -> a <= b && sorted (b :: tl)
+
+let tailSorted (l : list int { sorted l })
+    : Lemma ((length l > 0) ==> (match l with | _ :: tl -> sorted tl)) = ()
+
+let rec merge (a : list int { sorted a }) (b : list int { sorted b }) : c : list int { length c = length a + length b && sorted c } =
     match a, b with
     | [], o | o, [] -> o
     | h1 :: t1, h2 :: t2 ->
-        if h1 < h2 then
-            h1 :: merge t1 b
+        if h1 <= h2 then
+            h1 :: merge t1 (h2 :: t2)
         else
-            h2 :: merge a t2
+            h2 :: merge (h1 :: t1) t2
 
 let rec take #a (l : list a) (n : nat { n <= length l }) : r : list a { length r = n } =
     if n = 0 then []
@@ -71,7 +81,7 @@ let nMinusHalfPlusHalf (n : nat) : Lemma (halve n + (n - halve n) = n) = ()
 
 // #set-options "--initial_fuel 10 --initial_ifuel 10"
 
-let rec mergeSort (l : list int) : Tot (r : list int { length r = length l }) (decreases (length l)) =
+let rec mergeSort (l : list int) : Tot (r : list int { length r = length l && sorted r }) (decreases (length l)) =
     match l with
     | [] -> []
     | [ a ] -> [ a ]
@@ -89,14 +99,9 @@ let rec mergeSort (l : list int) : Tot (r : list int { length r = length l }) (d
 // #reset-options
 
 
-let rec sorted (l : list int) =
-    match l with
-    | [] | [ _ ] -> true
-    | a :: b :: tl -> a < b && sorted (b :: tl)
 
-
-let sorts1 = assert(sorted (mergeSort [ 1; 2; 3 ]))
-let sorts2 = assert(sorted (mergeSort [ 4; 5; 1 ]))
-let sorts3 = assert(sorted (mergeSort [ 5; -1 ]))
-let sorts4 = assert(sorted (mergeSort [ 0; 9; 1; 4; 5 ]))
+// let sorts1 = assert(sorted (mergeSort [ 1; 2; 3 ]))
+// let sorts2 = assert(sorted (mergeSort [ 4; 5; 1 ]))
+// let sorts3 = assert(sorted (mergeSort [ 5; -1 ]))
+// let sorts4 = assert(sorted (mergeSort [ 0; 9; 1; 4; 5 ]))
 
