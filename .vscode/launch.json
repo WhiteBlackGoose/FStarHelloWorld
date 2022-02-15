@@ -3,7 +3,7 @@
     "configurations": [
         {
             "name": "Build and run",
-            "type": "cmd",
+            "type": "coreclr",
             "request": "launch",
             "preLaunchTask": [
                 "codegen",
