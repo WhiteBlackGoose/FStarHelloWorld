@@ -5,7 +5,17 @@ Write-Host "Processing $moduleName"
 
 $filename = "$moduleName.fst"
 
-fstar $filename --dep full --codegen FSharp --odir ./codegen
+if ($args[1] -eq "verify")
+{
+  fstar $filename --query_stats
+  exit
+}
+else
+{
+  # fstar $filename --dep full --codegen FSharp --odir ./codegen
+
+  fstar $filename --codegen FSharp --odir ./codegen
+}
 
 Write-Host "Code generated to ./codegen"
 
