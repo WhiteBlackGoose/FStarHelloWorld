@@ -106,10 +106,10 @@ let bbb : oneOf 3 int k = 5
 
 //let rec ohnmmo_terminates (n : nat) : 
 
-// let rec ohnmmo (n : nat) : Tot nat (decreases n) = 
-//     if n = 0 then 0
-//     else if n % 2 = 1 then ohnmmo (n + 1)
-//     else ohnmmo (n - 2)
+let rec ohnmmo (n : nat) =
+    if n = 0 then 0
+    else if n % 2 = 1 then ohnmmo (n + 1)
+    else ohnmmo (n - 2)
 
 
 

@@ -16,15 +16,42 @@ let rec sorted (l : list int) =
     | [] | [ _ ] -> true
     | a :: b :: tl -> a <= b && sorted (b :: tl)
 
-let rec merge (a : list int) (b : list int)
-    : c : list int { length c = length a + length b /\ (sorted a /\ sorted b ==> sorted c) } =
+let rec merge (a : list int { sorted a }) (b : list int { sorted b })
+    : c : list int { (*length c = length a + length b /\*) sorted c } =
     match a, b with
     | [], o | o, [] -> o
     | h1 :: t1, h2 :: t2 ->
         if h1 <= h2 then
-            h1 :: merge t1 (h2 :: t2)
+            // h1 :: merge t1 (h2 :: t2)
+            h1 :: merge t1 b
         else
-            h2 :: merge (h1 :: t1) t2
+            // h2 :: merge (h1 :: t1) t2
+            h2 :: merge a t2
+
+let rec mergedCorrectly1 (l : list int) (r : list int)
+    : Lemma (sorted l /\ sorted r ==> sorted (merge l r)) =
+    match l, r with
+    | [], _ | _, [] -> ()
+    | h1 :: t1, h2 :: t2 ->
+        mergedCorrectly1 t1 (h2 :: t2);
+        mergedCorrectly1 (h1 :: t1) t2
+
+let rec mergedCorrectly2 (l : list int) (r : list int)
+    : Lemma (requires (sorted l /\ sorted r))
+            (ensures (sorted (merge l r))) =
+    match l, r with
+    | [], _ | _, [] -> ()
+    | h1 :: t1, h2 :: t2 ->
+        mergedCorrectly2 t1 (h2 :: t2);
+        mergedCorrectly2 (h1 :: t1) t2
+
+let rec mergedCorrectlyKeepLength (l : list int) (r : list int)
+    : Lemma (sorted l /\ sorted r ==> sorted (merge l r) /\ (length l + length r = length (merge l r))) =
+    match l, r with
+    | [], _ | _, [] -> ()
+    | h1 :: t1, h2 :: t2 ->
+        mergedCorrectlyKeepLength t1 (h2 :: t2);
+        mergedCorrectlyKeepLength (h1 :: t1) t2
 
 let rec take #a (l : list a) (n : nat { n <= length l }) : r : list a { length r = n } =
     if n = 0 then []
@@ -94,14 +121,6 @@ let rec mergeSort (l : list int) : Tot (r : list int { length r = length l }) (d
         let (left, right) = split other in
         merge (mergeSort left) (mergeSort right)
 
-
-let rec mergedCorrectly (l : list int) (r : list int)
-    : Lemma (sorted l /\ sorted r ==> sorted (merge l r)) =
-    match l, r with
-    | [], _ | _, [] -> ()
-    | h1 :: t1, h2 :: t2 ->
-        mergedCorrectly t1 (h2 :: t2);
-        mergedCorrectly (h1 :: t1) t2
 
 (*
 let rec sortedCorrectly (l : list int)
