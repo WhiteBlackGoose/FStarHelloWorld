@@ -30,7 +30,8 @@ let rec merge (a : list int) (b : list int)
 
 
 let rec mergedCorrectly (l : list int) (r : list int)
-    : Lemma (sorted l /\ sorted r ==> sorted (merge l r)) =
+    : Lemma (requires sorted l /\ sorted r)
+            (ensures sorted (merge l r)) =
     match l, r with
     | [], _ | _, [] -> ()
     | h1 :: t1, h2 :: t2 ->
@@ -78,7 +79,9 @@ let rec sortReturnsSorted (l : list int)
     | other ->
         let (left, right) = split other in
         assert(length left < length other /\ length right < length other); 
-        sortReturnsSorted (mergeSort left);
-        sortReturnsSorted (mergeSort right);
-        mergedCorrectly (mergeSort left) (mergeSort right);
-        sortReturnsSorted (merge (mergeSort left) (mergeSort right))
+        sortReturnsSorted left;
+        sortReturnsSorted right;
+        mergedCorrectly (mergeSort left) (mergeSort right)
+        // sortReturnsSorted (merge (mergeSort left) (mergeSort right))
+
+
