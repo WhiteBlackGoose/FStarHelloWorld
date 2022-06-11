@@ -90,21 +90,3 @@ let rec sortReturnsSorted (l : list int)
 let mergeSort (l : list int) : (r : list int { sorted r }) =
     sortReturnsSorted l;
     _mergeSort l
-
-
-(*
-let rec count el = function
-    | [] -> 0
-    | hd :: tl -> (if hd = el then 1 else 0) + count el tl
-    
-
-let rec isSubsetOf elsToCheck inner outer =
-    match elsToCheck with
-    | el :: others -> count el inner <= count el outer && isSubsetOf others inner outer
-    | [] -> true
-
-
-
-let mergedReturnsSuperset (inner : list int)
-    : Lemma (ensures (length inner = length (mergeSort inner)) /\ (isSubsetOf inner (mergeSort inner))) = ()
-*)
