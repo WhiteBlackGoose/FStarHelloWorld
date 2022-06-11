@@ -59,8 +59,12 @@ let splitLemma #a (s : list a)
 
 // MERGE SORT
 
+// assume val _mergeSort
 
-let rec mergeSort (l : list int) : Tot (r : list int { length r = length l }) (decreases (length l)) =
+// assume val _sortReturnsSorted (l : list int) : Lemma (sorted (mergeSort l))
+
+
+let rec _mergeSort (l : list int) : Tot (r : list int { length r = length l }) (decreases (length l)) =
     match l with
     | [] -> []
     | [ a ] -> [ a ]
@@ -69,11 +73,11 @@ let rec mergeSort (l : list int) : Tot (r : list int { length r = length l }) (d
         else [ b; a ]
     | other ->
         let (left, right) = split other in
-        merge (mergeSort left) (mergeSort right)
+        merge (_mergeSort left) (_mergeSort right)
 
 
 let rec sortReturnsSorted (l : list int)
-    : Lemma (ensures sorted (mergeSort l)) (decreases length l) =
+    : Lemma (ensures sorted (_mergeSort l)) (decreases length l) =
     match l with
     | [] | [ _ ] | [ _; _ ] -> ()
     | other ->
@@ -81,7 +85,26 @@ let rec sortReturnsSorted (l : list int)
         assert(length left < length other /\ length right < length other); 
         sortReturnsSorted left;
         sortReturnsSorted right;
-        mergedCorrectly (mergeSort left) (mergeSort right)
-      
+        mergedCorrectly (_mergeSort left) (_mergeSort right)
+
+let mergeSort (l : list int) : (r : list int { sorted r }) =
+    sortReturnsSorted l;
+    _mergeSort l
 
 
+(*
+let rec count el = function
+    | [] -> 0
+    | hd :: tl -> (if hd = el then 1 else 0) + count el tl
+    
+
+let rec isSubsetOf elsToCheck inner outer =
+    match elsToCheck with
+    | el :: others -> count el inner <= count el outer && isSubsetOf others inner outer
+    | [] -> true
+
+
+
+let mergedReturnsSuperset (inner : list int)
+    : Lemma (ensures (length inner = length (mergeSort inner)) /\ (isSubsetOf inner (mergeSort inner))) = ()
+*)
