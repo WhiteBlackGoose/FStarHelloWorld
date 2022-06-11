@@ -4,7 +4,7 @@ open FStar.Mul
 open FStar.Math.Lib
 open FStar.IO
 
-#set-options "--initial_fuel 10 --initial_ifuel 10"
+// #set-options "--initial_fuel 10 --initial_ifuel 10"
 
 let rec length l : nat =
     match l with
@@ -16,42 +16,17 @@ let rec sorted (l : list int) =
     | [] | [ _ ] -> true
     | a :: b :: tl -> a <= b && sorted (b :: tl)
 
-let rec merge (a : list int { sorted a }) (b : list int { sorted b })
-    : c : list int { (*length c = length a + length b /\*) sorted c } =
+let rec merge (a : list int) (b : list int)
+    : c : list int { length c = length a + length b } =
     match a, b with
     | [], o | o, [] -> o
     | h1 :: t1, h2 :: t2 ->
         if h1 <= h2 then
-            // h1 :: merge t1 (h2 :: t2)
             h1 :: merge t1 b
         else
-            // h2 :: merge (h1 :: t1) t2
             h2 :: merge a t2
 
-let rec mergedCorrectly1 (l : list int) (r : list int)
-    : Lemma (sorted l /\ sorted r ==> sorted (merge l r)) =
-    match l, r with
-    | [], _ | _, [] -> ()
-    | h1 :: t1, h2 :: t2 ->
-        mergedCorrectly1 t1 (h2 :: t2);
-        mergedCorrectly1 (h1 :: t1) t2
-
-let rec mergedCorrectly2 (l : list int) (r : list int)
-    : Lemma (requires (sorted l /\ sorted r))
-            (ensures (sorted (merge l r))) =
-    match l, r with
-    | [], _ | _, [] -> ()
-    | h1 :: t1, h2 :: t2 ->
-        mergedCorrectly2 t1 (h2 :: t2);
-        mergedCorrectly2 (h1 :: t1) t2
-
-let rec mergedCorrectlyKeepLength (l : list int) (r : list int)
-    : Lemma (sorted l /\ sorted r ==> sorted (merge l r) /\ (length l + length r = length (merge l r))) =
-    match l, r with
-    | [], _ | _, [] -> ()
-    | h1 :: t1, h2 :: t2 ->
-        mergedCorrectlyKeepLength t1 (h2 :: t2);
-        mergedCorrectlyKeepLength (h1 :: t1) t2
+(*
 
 let rec take #a (l : list a) (n : nat { n <= length l }) : r : list a { length r = n } =
     if n = 0 then []
@@ -61,11 +36,11 @@ let rec drop #a (l : list a) (n : nat { n <= length l }) : r : list a { length r
     if n = 0 then l
     else match l with | _ :: tl -> drop tl (n - 1)
 
-let rec halve (n : nat) : d : nat { d <= n } =
+let rec halve (n : nat { n > 0 }) : d : nat { d < n } =
     match n with
     | 0 | 1 -> 0
     | other -> 1 + halve (n - 2)
-
+ 
 let rec divBy2IsLess (n : nat)
     : Lemma (halve n <= n) =
     match n with
@@ -74,7 +49,7 @@ let rec divBy2IsLess (n : nat)
         divBy2IsLess (other - 1)
 
 let nMinusItsHalfIsLess (n : nat) : Lemma (n - halve n <= n) = ()
-
+*)
 (*
 let split #a (l : list a)
     : x : (list a & list a) { length (fst x) + length (snd x) = length l } =
@@ -101,8 +76,12 @@ let rec split #a (s : list a) : x : (list a & list a) { length (fst x) + length 
         let (l, r) = split tl in
         h1 :: l, h2 :: r
 
+let splitLemma #a (s : list a)
+    : Lemma (requires length s > 2)
+            (ensures length (fst (split s)) < length s /\ length (snd (split s)) < length s)
+    = ()
 
-let nMinusHalfPlusHalf (n : nat) : Lemma (halve n + (n - halve n) = n) = ()
+// let nMinusHalfPlusHalf (n : nat) : Lemma (halve n + (n - halve n) = n) = ()
 
 // #set-options "--initial_fuel 10 --initial_ifuel 10"
 
@@ -143,3 +122,23 @@ let rec sortedCorrectly (l : list int)
 // let sorts3 = assert(sorted (mergeSort [ 5; -1 ]))
 // let sorts4 = assert(sorted (mergeSort [ 0; 9; 1; 4; 5 ]))
 
+let rec mergedCorrectly (l : list int) (r : list int)
+    : Lemma (sorted l /\ sorted r ==> sorted (merge l r)) =
+    match l, r with
+    | [], _ | _, [] -> ()
+    | h1 :: t1, h2 :: t2 ->
+        mergedCorrectly t1 (h2 :: t2);
+        mergedCorrectly (h1 :: t1) t2
+
+
+let rec sortReturnsSorted (l : list int)
+    : Lemma (ensures sorted (mergeSort l)) (decreases length l) =
+    match l with
+    | [] | [ _ ] | [ _; _ ] -> ()
+    | other ->
+        let (left, right) = split other in
+        // assert(length left < length other /\ length right < length other); 
+        sortReturnsSorted (mergeSort left);
+        sortReturnsSorted (mergeSort right);
+        mergedCorrectly (mergeSort left) (mergeSort right);
+        sortReturnsSorted (merge (mergeSort left) (mergeSort right))

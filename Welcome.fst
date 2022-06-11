@@ -5,6 +5,8 @@ open FStar.Math.Lib
 open FStar.String
 open FStar.IO
 
+#set-options "--initial_fuel 10 --initial_ifuel 10"
+
 let id a = a
 
 let first : Type = x : int { x > 0 }
@@ -106,11 +108,12 @@ let bbb : oneOf 3 int k = 5
 
 //let rec ohnmmo_terminates (n : nat) : 
 
+(*
 let rec ohnmmo (n : nat) =
     if n = 0 then 0
     else if n % 2 = 1 then ohnmmo (n + 1)
     else ohnmmo (n - 2)
-
+*)
 
 
 (*
@@ -125,13 +128,13 @@ let prime = x : int { x > 1 /\ (forall (y : int { y > 1 && y < x }) . x % y <> 0
 let p1 : prime = 2
 let p2 : prime = 5
 let p3 : prime = 11
-// let p4 : prime = 8
+let p4 : prime = 8
 
 // let afgd : unit -> int = (fun _ -> 3)
 
 // let b = afgd()
 
-let _ = print_string stdout "hello"
+// let _ = print_string stdout "hello"
 
 (*
 let main (input : unit -> string) (output : string -> unit) : int =
