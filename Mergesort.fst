@@ -82,6 +82,6 @@ let rec sortReturnsSorted (l : list int)
         sortReturnsSorted left;
         sortReturnsSorted right;
         mergedCorrectly (mergeSort left) (mergeSort right)
-        // sortReturnsSorted (merge (mergeSort left) (mergeSort right))
+      
 
 
